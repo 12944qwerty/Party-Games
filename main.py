@@ -98,6 +98,6 @@ bot = MyBot()
 
 keep_alive()
 
-if __name__ == '__main__':
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(bot.start(TOKEN))
+# if __name__ == '__main__':
+loop = asyncio.get_event_loop()
+loop.run_until_complete(bot.start(TOKEN))

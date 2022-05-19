@@ -3,7 +3,9 @@ from discord.ext import commands, tasks
 from discord import app_commands
 from .utils.constants import GROUP_GUILDS
 from .utils.views import Confirm
+from .utils.javarandom import Random
 
+from PIL import Image
 import typing
 import random
 import json
@@ -15,7 +17,7 @@ lb_types = {
     'dataUse': 'Data Used',
     'games': 'Games Played',
     'timeSpent': 'Time Spent Playing',
-    'dataReplayAvg': 'Data Replay Average',
+    'dataReplayAvg': 'Average Replay Size',
     'avg': 'Average Time',
     'stddev': 'Consistency',
     'lbTime50Unsorted_dev': 'Last 100 Games Consistency',
@@ -37,6 +39,7 @@ class PG(commands.Cog, name="Party Games"):
 
         self.get_data.start()
         self.backup.start()
+        self.updater.start()
 
     async def cog_unload(self):
         with open("pair.json", "w") as f:
@@ -56,35 +59,6 @@ class PG(commands.Cog, name="Party Games"):
 
             return True
 
-    @commands.is_owner()
-    @commands.command('force_update')
-    async def force_update(self, ctx):
-        check = await self.get_data()
-
-        msg = await ctx.send("Updating...")
-
-        skipped = []
-
-        for i, person in enumerate(self.data['pbAny']):
-            self.users[person['name']] = {
-                'uuid': person['player'],
-                'avatar': "https://crafthead.net/avatar/"+person['player'].replace("-", "")
-            }
-            # await msg.edit(content="Updated " + json['username'] + f" {i}/{len(self.data['pbAny'])}")
-
-        for user, stuff in self.users.items():
-            if type(stuff) != dict:
-                self.users[user] = {
-                    'uuid': stuff,
-                    'avatar': "https://crafthead.net/avatar/"+stuff.replace("-", "")
-                }
-
-        await msg.edit(content="Updated", delete_after=3.0)
-
-        await self.backup()
-
-        await ctx.send(check)
-
     @tasks.loop(seconds=60)
     async def backup(self):
         await self.bot.wait_until_ready()
@@ -93,6 +67,39 @@ class PG(commands.Cog, name="Party Games"):
         with open("users.json", "w") as f:
             json.dump(self.users, f)
 
+    @tasks.loop(hours=1)
+    async def updater(self):
+        await self.bot.wait_until_ready()
+        check = await self.get_data()
+
+        for i, person in enumerate(self.data['pbAny']):
+            self.users[person['name']] = {
+                'uuid': person['player'],
+                'avatar': "https://crafthead.net/avatar/"+person['player'].replace("-", "")
+            }
+
+        for user, stuff in self.users.items():
+            if type(stuff) != dict:
+                self.users[user] = {
+                    'uuid': stuff,
+                    'avatar': "https://crafthead.net/avatar/"+stuff.replace("-", "")
+                }
+
+        await self.backup()
+
+        return check
+    
+    @commands.is_owner()
+    @commands.command('force_update')
+    async def force_update(self, ctx):
+        msg = await ctx.send("Updating...")
+
+        check = await self.updater()
+
+        await msg.edit(content="Updated", delete_after=3.0)
+
+        await ctx.send(check)
+    
     @commands.hybrid_command('unpair', aliases=['unlink'])
     @app_commands.guilds(*GROUP_GUILDS)
     async def unpair_user(self, ctx):
@@ -370,7 +377,7 @@ class PG(commands.Cog, name="Party Games"):
 
         embed.set_footer(text="Last updated at")
         await ctx.send(embed=embed)
-
+    
     @commands.hybrid_command('pbgame')
     @app_commands.guilds(*GROUP_GUILDS)
     async def pbgame(self, ctx, mc_user: typing.Optional[str]):
@@ -437,15 +444,38 @@ class PG(commands.Cog, name="Party Games"):
         if seed is None or not isinstance(seed, int):
             return await ctx.send(f"Please send a valid seed. Must be an integer\n`{ctx.clean_prefix}seed <seed>`")
 
-        random.seed(seed)
+        board = Image.open('images/board.png')
+        dirt = Image.open('images/dirt.png')
+        stone = Image.open('images/stone.png')
+        cobblestone = Image.open('images/cobblestone.png')
+        log = Image.open('images/wood.png')
+        plank = Image.open('images/woodplank.png')
+        brick = Image.open('images/brick.png')
+        gold = Image.open('images/goldblock.png')
+        netherrack = Image.open('images/netherrack.png')
+        endstone = Image.open('images/endstone.png')
 
-        allblocks = ["dirt", "stone", "cobblestone", "log", "planks", "bricks", "gold", "nether", "endstone"]
 
-        blocks = []
-        for i in [0]*9:
-            blocks.append(allblocks.pop(random.randint(0,len(allblocks))))
+        blocks = [dirt, stone, cobblestone, log, plank, brick, gold, netherrack, endstone]
 
-        await ctx.send(f'{", ".join(blocks[:3])}\n{", ".join(blocks[3:6])}\n{", ".join(blocks[6:])}\n')
+        r = Random(seed)
+        for i in range(9):
+            j = r.nextInt(9)
+            blocks[i], blocks[j] = blocks[j], blocks[i]
+
+        x = y = 0
+        for block in blocks:
+            board.paste(block, (200 + (x * 326), 200 + (y * 326)))
+            x += 1
+            if x == 3:
+                x = 0
+                y += 1
+
+        board.save(f"saves/board-{seed}.png")
+
+        file = discord.File(f"saves/board-{seed}.png")     
+        
+        await ctx.send(file=file)
 
 
 async def setup(bot):

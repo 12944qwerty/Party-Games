@@ -2,7 +2,7 @@ import discord
 from discord import app_commands
 import asyncio
 
-class LBButton(discord.ui.Button):
+class Button(discord.ui.Button):
     async def callback(self, interaction):
         self.view.value = self.label
         self.view.stop()

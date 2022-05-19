@@ -9,6 +9,8 @@ from PIL import Image
 import typing
 import random
 import json
+from os.path import exists
+import os
 from datetime import datetime
 
 lb_types = {
@@ -444,6 +446,9 @@ class PG(commands.Cog, name="Party Games"):
         if seed is None or not isinstance(seed, int):
             return await ctx.send(f"Please send a valid seed. Must be an integer\n`{ctx.clean_prefix}seed <seed>`")
 
+        if exists(f"board-{seed}"):
+            return await ctx.send(file=discord.File(f"board-{seed}"))
+
         board = Image.open('images/board.png')
         dirt = Image.open('images/dirt.png')
         stone = Image.open('images/stone.png')
@@ -454,7 +459,6 @@ class PG(commands.Cog, name="Party Games"):
         gold = Image.open('images/goldblock.png')
         netherrack = Image.open('images/netherrack.png')
         endstone = Image.open('images/endstone.png')
-
 
         blocks = [dirt, stone, cobblestone, log, plank, brick, gold, netherrack, endstone]
 
@@ -471,9 +475,11 @@ class PG(commands.Cog, name="Party Games"):
                 x = 0
                 y += 1
 
-        board.save(f"saves/board-{seed}.png")
+        board.save(f"board-{seed}.png")
 
-        file = discord.File(f"saves/board-{seed}.png")     
+        file = discord.File(f"board-{seed}.png") 
+
+        os.remove(f"board-{seed}.png")
         
         await ctx.send(file=file)
 

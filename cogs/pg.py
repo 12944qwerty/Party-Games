@@ -2,12 +2,12 @@ import discord
 from discord.ext import commands, tasks
 from discord import app_commands
 from .utils.constants import GROUP_GUILDS
-from .utils.views import Confirm
+from .utils.views import Confirm, Button
 from .utils.javarandom import Random
 
 from PIL import Image
 import typing
-import random
+import asyncio
 import json
 from os.path import exists
 import os
@@ -305,7 +305,15 @@ class PG(commands.Cog, name="Party Games"):
     async def leaderboards(self, ctx, *, lb_type: typing.Optional[str]):
         """Shows the leaderboards."""
         if lb_type is None or lb_type not in [*lb_types.keys(), *lb_types.values()]:
-            return await ctx.send("Please pick a lb type from the following:\n`" + '`, `'.join(lb_types.values()) + "`")
+            buttons = discord.ui.View()
+            for t in lb_types.values():
+                buttons.add_item(Button(label=t, style=discord.ButtonStyle.primary))
+            msg = await ctx.send("Please pick a lb type from the following", view=buttons)
+
+            await buttons.wait()
+
+            await msg.delete()
+            lb_type = buttons.value
 
         if lb_type in lb_types.values():
             lb_type = {v: k for k, v in lb_types.items()}[lb_type]

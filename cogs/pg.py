@@ -77,14 +77,14 @@ class PG(commands.Cog, name="Party Games"):
         for i, person in enumerate(self.data['pbAny']):
             self.users[person['name']] = {
                 'uuid': person['player'],
-                'avatar': "https://crafthead.net/avatar/"+person['player'].replace("-", "")
+                'avatar': "https://crafatar.com/renders/body/"+person['player'].replace("-", "") + "?scale=10&overlay"
             }
 
         for user, stuff in self.users.items():
             if type(stuff) != dict:
                 self.users[user] = {
                     'uuid': stuff,
-                    'avatar': "https://crafthead.net/avatar/"+stuff.replace("-", "")
+                    'avatar': "https://crafatar.com/renders/body/"+stuff.replace("-", "") + "?scale=10&overlay"
                 }
 
         await self.backup()
@@ -279,7 +279,7 @@ class PG(commands.Cog, name="Party Games"):
             if type(stuff) == str:
                 self.users[m] = {
                     'uuid': stuff.replace("-", ""),
-                    'avatar': "https://crafthead.net/avatar/"+stuff.replace("-", "")
+                    'avatar': "https://crafatar.com/renders/body/"+stuff.replace("-", "") + "?scale=10&overlay"
                 }
                 stuff = self.users[m]
             if stuff['uuid'].replace("-", "") == mc_user:
@@ -433,7 +433,7 @@ class PG(commands.Cog, name="Party Games"):
             if type(stuff) == str:
                 self.users[m] = {
                     'uuid': stuff.replace("-", ""),
-                    'avatar': "https://crafthead.net/avatar/"+stuff.replace("-", "")
+                    'avatar': "https://crafatar.com/renders/body/"+stuff.replace("-", "") + "?scale=10&overlay"
                 }
                 stuff = self.users[m]
             if stuff['uuid'].replace("-", "") == mc_user:

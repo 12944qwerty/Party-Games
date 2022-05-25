@@ -286,7 +286,7 @@ class PG(commands.Cog, name="Party Games"):
                 user = m, stuff
                 break
         else:
-            print("huh")
+            return await ctx.send("User doesn't have any stats on the server.")
         
         embed.title = f"{user[0]}'s Stats"
         embed.set_thumbnail(url=user[1]['avatar'])
@@ -440,7 +440,7 @@ class PG(commands.Cog, name="Party Games"):
                 user = m, stuff
                 break
         else:
-            print("huh")
+            return await ctx.send("User doesn't have any stats on the server.")
         
         embed.title = f"{user[0]}'s Personal Best"
         embed.set_thumbnail(url=user[1]['avatar'])

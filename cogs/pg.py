@@ -7,6 +7,7 @@ from .utils.javarandom import Random
 
 from PIL import Image
 import typing
+import mcstatus
 import asyncio
 import json
 from os.path import exists
@@ -491,6 +492,16 @@ class PG(commands.Cog, name="Party Games"):
         
         await ctx.send(file=file)
 
+    @commands.hybrid_command(name='server')
+    async def server(self, ctx):
+        """Ping the server"""
+        status = await self.server.async_status()
+        
+        await ctx.send(f"The server has {status.players.online}/{status.players.max} players and pinged in {status.latency} ms")
+
+        if status.players.sample is not None:
+            await ctx.send("Players Online:\n" + ", ".join(s.name for s in status.players.sample))
+        
 
 async def setup(bot):
     await bot.add_cog(PG(bot))

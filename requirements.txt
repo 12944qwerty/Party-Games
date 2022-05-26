@@ -3,3 +3,4 @@ git+https://github.com/Gorialis/jishaku
 flask
 python-dateutil
 pillow
+mcstatus

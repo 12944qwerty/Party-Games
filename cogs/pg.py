@@ -465,7 +465,7 @@ class PG(commands.Cog, name="Party Games"):
                 return await ctx.send("Seed is invalid")
         else:
             try:
-                num = int(seed[1:])
+                num = int(seed[1:], 32)
                 if num < 0 or num % 3 != 0 or num is None or not math.isfinite(num):
                     raise Exception()
                 num /= 3

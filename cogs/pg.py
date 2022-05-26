@@ -45,7 +45,7 @@ class PG(commands.Cog, name="Party Games"):
         self.updater.start()
 
     async def cog_load(self):
-        self.mcserver = await JavaServer("mc.semisol.dev")
+        self.mcserver = await JavaServer.async_lookup("mc.semisol.dev")
 
     async def cog_unload(self):
         with open("pair.json", "w") as f:

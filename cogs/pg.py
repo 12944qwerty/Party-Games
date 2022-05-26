@@ -7,6 +7,7 @@ from .utils.javarandom import Random
 
 from PIL import Image
 import typing
+import math
 from mcstatus import JavaServer
 import asyncio
 import json
@@ -453,10 +454,24 @@ class PG(commands.Cog, name="Party Games"):
 
     @commands.hybrid_command('seed')
     @app_commands.guilds(*GROUP_GUILDS)
-    async def seed(self, ctx, seed: int = None):
+    async def seed(self, ctx, seed):
         """Shows the board of a certain seed"""
-        if seed is None or not isinstance(seed, int):
-            return await ctx.send(f"Please send a valid seed. Must be an integer\n`{ctx.clean_prefix}seed <seed>`")
+        method = False
+        if seed[0] != "C" or len(seed) != 5:
+            try:
+                num = int(seed)
+                method = True
+            except Exception:
+                return await ctx.send("Seed is invalid")
+        else:
+            try:
+                num = int(seed[1:])
+                if num < 0 or num % 3 != 0 or num is None or not math.isfinite(num):
+                    raise Exception()
+                num /= 3
+            except Exception:
+                return await ctx.send("Seed is invalid")
+
 
         if exists(f"board-{seed}"):
             return await ctx.send(file=discord.File(f"board-{seed}"))
@@ -474,13 +489,24 @@ class PG(commands.Cog, name="Party Games"):
 
         blocks = [dirt, stone, cobblestone, log, plank, brick, gold, netherrack, endstone]
 
-        r = Random(seed)
-        for i in range(9):
-            j = r.nextInt(9)
-            blocks[i], blocks[j] = blocks[j], blocks[i]
+        if method:
+            r = Random(int(seed))
+            for i in range(9):
+                j = r.nextInt(9)
+                blocks[i], blocks[j] = blocks[j], blocks[i]
+            output = blocks
+        else:
+            output = []
+
+            for i in range(9, 1, -1):
+                ind = int(num % i)
+                output.append(blocks[ind])
+                blocks.pop(ind)
+                num = (num - num % i) / i
+            output.append(blocks[0])
 
         x = y = 0
-        for block in blocks:
+        for block in output:
             board.paste(block, (200 + (x * 326), 200 + (y * 326)))
             x += 1
             if x == 3:

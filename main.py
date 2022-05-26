@@ -8,9 +8,11 @@ from cogs.utils.time import human_timedelta
 from cogs.utils.constants import GROUP_GUILDS
 from aiohttp import ClientSession
 import asyncio
-# from config import TOKEN
 
-TOKEN = os.environ["TOKEN"]
+try:
+    from config import TOKEN
+except Exception:
+    TOKEN = os.environ["TOKEN"]
 
 os.environ["JISHAKU_NO_UNDERSCORE"] = "True"
 os.environ["JISHAKU_NO_DM_TRACEBACK"] = "True"

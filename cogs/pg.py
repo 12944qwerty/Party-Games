@@ -7,7 +7,7 @@ from .utils.javarandom import Random
 
 from PIL import Image
 import typing
-import mcstatus
+from mcstatus import JavaServer
 import asyncio
 import json
 from os.path import exists
@@ -43,6 +43,9 @@ class PG(commands.Cog, name="Party Games"):
         self.get_data.start()
         self.backup.start()
         self.updater.start()
+
+    async def cog_load(self):
+        self.mcserver = await JavaServer("mc.semisol.dev")
 
     async def cog_unload(self):
         with open("pair.json", "w") as f:
@@ -495,7 +498,7 @@ class PG(commands.Cog, name="Party Games"):
     @commands.hybrid_command(name='server')
     async def server(self, ctx):
         """Ping the server"""
-        status = await self.server.async_status()
+        status = await self.mcserver.async_status()
         
         await ctx.send(f"The server has {status.players.online}/{status.players.max} players and pinged in {status.latency} ms")
 

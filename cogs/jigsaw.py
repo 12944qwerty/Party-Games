@@ -29,7 +29,7 @@ lb_types = {
 }
 
 
-class PG(commands.Cog, name="Party Games"):
+class Jigsaw(commands.Cog, name="Jigsaw Rush"):
     def __init__(self, bot):
         self.bot = bot
         self.data = {}
@@ -526,11 +526,8 @@ class PG(commands.Cog, name="Party Games"):
         """Ping the server"""
         status = await self.mcserver.async_status()
         
-        await ctx.send(f"The server has {status.players.online}/{status.players.max} players and pinged in {status.latency} ms")
-
-        if status.players.sample is not None:
-            await ctx.send("Players Online:\n" + ", ".join(s.name for s in status.players.sample))
+        await ctx.send(f"**{status.description}**\n_Version:_ {status.version.name}\n_Players Online:_ {status.players.online}/{status.players.max}\n_Latency:_ {status.latency}ms\n{'_Players Online:_ ' + ', '.join(s.name for s in status.players.sample) if status.players.sample else ''}")
         
 
 async def setup(bot):
-    await bot.add_cog(PG(bot))
+    await bot.add_cog(Jigsaw(bot))

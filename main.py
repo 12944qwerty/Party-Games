@@ -25,7 +25,7 @@ extensions = [
         'bot',
         'errorhandler',
         '_help',
-        'pg',
+        'jigsaw',
     ]]
 ]
 

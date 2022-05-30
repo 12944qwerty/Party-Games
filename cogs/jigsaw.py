@@ -316,9 +316,10 @@ class Jigsaw(commands.Cog, name="Jigsaw Rush"):
             msg = await ctx.send("Please pick a lb type from the following", view=buttons)
 
             await buttons.wait()
-
-            await msg.delete()
+            
             lb_type = buttons.value
+        else:
+            msg = await ctx.send("...")
 
         if lb_type in lb_types.values():
             lb_type = {v: k for k, v in lb_types.items()}[lb_type]
@@ -391,7 +392,7 @@ class Jigsaw(commands.Cog, name="Jigsaw Rush"):
                 embed.description += f"{i+1}. {person['name']} - {round(person[keys[lb_type]]/divide[lb_type], 3)}{suffix[lb_type]}\n"
 
         embed.set_footer(text="Last updated at")
-        await ctx.send(embed=embed)
+        await msg.edit(content='_ _',view=None,embed=embed)
     
     @commands.hybrid_command('pbgame')
     @app_commands.guilds(*GROUP_GUILDS)

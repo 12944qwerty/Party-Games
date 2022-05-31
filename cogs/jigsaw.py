@@ -28,6 +28,27 @@ lb_types = {
     'lbTime50Unsorted_avg': 'Last 100 Games Average'
 }
 
+def base36encode(number, alphabet='0123456789abcdefghijklmnopqrstuvwxyz'):
+    """Converts an integer to a base36 string."""
+    number = int(number)
+    if not isinstance(number, int):
+        raise TypeError('number must be an integer')
+
+    base36 = ''
+    sign = ''
+
+    if number < 0:
+        sign = '-'
+        number = -number
+
+    if 0 <= number < len(alphabet):
+        return sign + alphabet[number]
+
+    while number != 0:
+        number, i = divmod(number, len(alphabet))
+        base36 = alphabet[i] + base36
+
+    return sign + base36
 
 class Jigsaw(commands.Cog, name="Jigsaw Rush"):
     def __init__(self, bot):
@@ -452,6 +473,45 @@ class Jigsaw(commands.Cog, name="Jigsaw Rush"):
 
         await ctx.send(embed=embed)
 
+    @commands.command(name='get_cbr')
+    async def get_cbr(self, ctx, *board):
+        blocks = ["dirt", "stone", "cobblestone", "log", "plank", "brick", "gold", "netherrack", "endstone"]
+        board = list(board)
+        output = []
+
+        seed = 0
+
+        for i in range(0, 9):
+            ind = blocks.index(board[i])
+            output.append(ind)
+            blocks.pop(ind)
+
+        for i in range(7, -1, -1):
+            seed *= 9 - i
+            seed += output[i]
+
+        seed *= 3
+
+        return await ctx.send(f"`/start C{base36encode(str(seed)).zfill(4)}`")
+
+
+    @commands.hybrid_command('convert')
+    @app_commands.guilds(*GROUP_GUILDS)
+    async def convertseed(self, ctx, seed: str):
+        """Converts a CBR seed from int 32 to int 36."""
+        if seed[0] != "C" or len(seed) != 5:
+            return await ctx.send("Seed is invalid.")
+        
+        try:
+            num = int(seed[1:], 32)
+            if num < 0 or num % 3 != 0 or num is None or not math.isfinite(num):
+                raise Exception()
+        except Exception:
+            return await ctx.send("Seed is invalid")
+
+        return await ctx.send(f"`/start C{base36encode(str(num)).zfill(4)}`")
+
+
     @commands.hybrid_command('seed')
     @app_commands.guilds(*GROUP_GUILDS)
     async def seed(self, ctx, seed):
@@ -465,7 +525,7 @@ class Jigsaw(commands.Cog, name="Jigsaw Rush"):
                 return await ctx.send("Seed is invalid")
         else:
             try:
-                num = int(seed[1:], 32)
+                num = int(seed[1:], 36)
                 if num < 0 or num % 3 != 0 or num is None or not math.isfinite(num):
                     raise Exception()
                 num /= 3
@@ -480,10 +540,10 @@ class Jigsaw(commands.Cog, name="Jigsaw Rush"):
         dirt = Image.open('images/dirt.png')
         stone = Image.open('images/stone.png')
         cobblestone = Image.open('images/cobblestone.png')
-        log = Image.open('images/wood.png')
-        plank = Image.open('images/woodplank.png')
+        log = Image.open('images/log.png')
+        plank = Image.open('images/plank.png')
         brick = Image.open('images/brick.png')
-        gold = Image.open('images/goldblock.png')
+        gold = Image.open('images/gold.png')
         netherrack = Image.open('images/netherrack.png')
         endstone = Image.open('images/endstone.png')
 
@@ -520,14 +580,17 @@ class Jigsaw(commands.Cog, name="Jigsaw Rush"):
         os.remove(f"board-{seed}.png")
         
         await ctx.send(file=file)
+        if method:
+            await self.get_cbr(ctx, *[o.filename[7:-4] for o in output])
+        else:
+            await ctx.send(f"`/start {seed}`")
 
     @commands.hybrid_command(name='server')
     async def server(self, ctx):
         """Ping the server"""
         status = await self.mcserver.async_status()
-        
+
         await ctx.send(f"**{status.description}**\n_Version:_ {status.version.name}\n_Players Online:_ {status.players.online}/{status.players.max}\n_Latency:_ {status.latency}ms\n{'_Players Online:_ ' + ', '.join(s.name for s in status.players.sample) if status.players.sample else ''}")
-        
 
 async def setup(bot):
     await bot.add_cog(Jigsaw(bot))

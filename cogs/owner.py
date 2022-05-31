@@ -15,7 +15,7 @@ class DevCommands(commands.Cog, name='Developer Commands', command_attrs=dict(hi
     async def sync_slash(self, ctx):
         """Syncs the slash command tree"""
         for guild in GROUP_GUILDS:
-            await self.tree.sync(guild=guild)
+            await self.bot.tree.sync(guild=guild)
 
         await ctx.send("Synced Slash Command Tree")
         print("Synced Tree")

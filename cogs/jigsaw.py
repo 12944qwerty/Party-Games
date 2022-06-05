@@ -350,9 +350,9 @@ class Jigsaw(commands.Cog, name="Jigsaw Rush"):
         if "lbTime50Unsorted" in lb_type:
             lb_type = lb_type.replace('lbTime50Unsorted_', '')
             avg_sorted = sorted(
-                self.data['lbTime50Unsorted'], key=lambda a: a['avg'])[:10]
+                self.data['lbTime50Unsorted'], key=lambda a: a['avg'])[:15]
             dev_sorted = sorted(
-                self.data['lbTime50Unsorted'], key=lambda a: a['dev'])[:10]
+                self.data['lbTime50Unsorted'], key=lambda a: a['dev'])[:15]
             for i, person in enumerate(avg_sorted if lb_type == 'avg' else dev_sorted):
                 if person['name'] is None:
                     for m, stuff in self.users.items():
@@ -398,7 +398,7 @@ class Jigsaw(commands.Cog, name="Jigsaw Rush"):
                 'avg': 1,
                 'stddev': 1
             }
-            for i, person in enumerate(self.data[lb_type][:10]):
+            for i, person in enumerate(self.data[lb_type][:15]):
                 if person['name'] is None:
                     for m, stuff in self.users.items():
                         if stuff == person['player'] or type(stuff) == str:
@@ -505,7 +505,7 @@ class Jigsaw(commands.Cog, name="Jigsaw Rush"):
         
         try:
             num = int(seed[1:], 32)
-            if num < 0 or num % 3 != 0 or num is None or not math.isfinite(num):
+            if num < 0 or num % 3 != 0 or num is None or not math.isfinite(num) or num > 9*8*7*6*5*4*3*2:
                 raise Exception()
         except Exception:
             return await ctx.send("Seed is invalid")
@@ -527,7 +527,7 @@ class Jigsaw(commands.Cog, name="Jigsaw Rush"):
         else:
             try:
                 num = int(seed[1:], 36)
-                if num < 0 or num % 3 != 0 or num is None or not math.isfinite(num):
+                if num < 0 or num % 3 != 0 or num is None or not math.isfinite(num) or num > 9*8*7*6*5*4*3*2:
                     raise Exception()
                 num /= 3
             except Exception:

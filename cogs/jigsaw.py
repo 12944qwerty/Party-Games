@@ -117,9 +117,11 @@ class Jigsaw(commands.Cog, name="Jigsaw Rush"):
 
         return check
     
-    @commands.is_owner()
     @commands.command('force_update')
     async def force_update(self, ctx):
+        if ctx.author.id not in (499400512559382538, 683432545794392147):
+            raise commands.NotOwner("You do not own this bot")
+        
         msg = await ctx.send("Updating...")
 
         check = await self.updater()

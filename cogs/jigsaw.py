@@ -6,6 +6,8 @@ from .utils.views import Confirm, Button
 from .utils.javarandom import Random
 
 from PIL import Image
+
+import re
 import typing
 import math
 from mcstatus import JavaServer
@@ -118,10 +120,7 @@ class Jigsaw(commands.Cog, name="Jigsaw Rush"):
         return check
     
     @commands.command('force_update')
-    async def force_update(self, ctx):
-        if ctx.author.id not in (499400512559382538, 683432545794392147):
-            raise commands.NotOwner("You do not own this bot")
-        
+    async def force_update(self, ctx):        
         msg = await ctx.send("Updating...")
 
         check = await self.updater()
@@ -476,7 +475,7 @@ class Jigsaw(commands.Cog, name="Jigsaw Rush"):
 
         await ctx.send(embed=embed)
 
-    @commands.command(name='get_cbr')
+    @commands.command(name='get_cbr', aliases=['generate', 'getcode', 'get_code'])
     async def get_cbr(self, ctx, *board):
         blocks = ["dirt", "stone", "cobblestone", "log", "plank", "brick", "gold", "netherrack", "endstone"]
         board = list(board)
@@ -507,7 +506,7 @@ class Jigsaw(commands.Cog, name="Jigsaw Rush"):
         
         try:
             num = int(seed[1:], 32)
-            if num < 0 or num % 3 != 0 or num is None or not math.isfinite(num) or num > 9*8*7*6*5*4*3*2:
+            if num < 0 or num % 3 != 0 or num is None or not math.isfinite(num) or num > 1088637:
                 raise Exception()
         except Exception:
             return await ctx.send("Seed is invalid")
@@ -529,7 +528,7 @@ class Jigsaw(commands.Cog, name="Jigsaw Rush"):
         else:
             try:
                 num = int(seed[1:], 36)
-                if num < 0 or num % 3 != 0 or num is None or not math.isfinite(num) or num > 9*8*7*6*5*4*3*2:
+                if num < 0 or num % 3 != 0 or num is None or not math.isfinite(num) or num > 1088637:
                     raise Exception()
                 num /= 3
             except Exception:
@@ -581,19 +580,21 @@ class Jigsaw(commands.Cog, name="Jigsaw Rush"):
         file = discord.File(f"board-{seed}.png") 
 
         os.remove(f"board-{seed}.png")
-        
-        await ctx.send(file=file)
+    
         if method:
-            await self.get_cbr(ctx, *[o.filename[7:-4] for o in output])
+            msg = await self.get_cbr(ctx, *[o.filename[7:-4] for o in output])
+            await msg.edit(attachments=[file])
         else:
-            await ctx.send(f"`/start {seed}`")
+            await ctx.send(f"`/start {seed}`", file=file)
 
-    @commands.hybrid_command(name='server')
+    @commands.hybrid_command(name='server', aliases=['status'])
     async def server(self, ctx):
         """Ping the server"""
         status = await self.mcserver.async_status()
 
-        await ctx.send(f"**{status.description}**\n_Version:_ {status.version.name}\n_Players Online:_ {status.players.online}/{status.players.max}\n_Latency:_ {status.latency}ms\n{'_Players Online:_ ' + ', '.join(s.name for s in status.players.sample) if status.players.sample else ''}")
+        regex = re.compile("§.")
+
+        await ctx.send(f"**{regex.sub('', status.description)}**\n_Version:_ {status.version.name}\n_Players Online:_ {status.players.online}/{status.players.max}\n_Latency:_ {status.latency}ms\n{'_Players Online:_ ' + ', '.join(s.name for s in status.players.sample) if status.players.sample else ''}")
 
 async def setup(bot):
     await bot.add_cog(Jigsaw(bot))

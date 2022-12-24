@@ -18,20 +18,29 @@ class CommandErrorHandler(commands.Cog):
             # return
         
         msg = None
-        if isinstance(error, commands.CommandNotFound):return
-        #     msg = await ctx.em(title="Command Not Found", description=str(error), bot=self.bot)
+        if isinstance(error, commands.CommandNotFound):
+            if ctx.guild == 862180360610643999:
+                msg = await ctx.em(title="Command Not Found", description=str(error), bot=self.bot)
+            else:
+                return
 
-        elif isinstance(error, commands.DisabledCommand):return
-        #     msg = await ctx.em(title="Disabled Command", description=str(error), bot=self.bot)
+        elif isinstance(error, commands.DisabledCommand):
+            if ctx.guild == 862180360610643999:
+                msg = await ctx.em(title="Disabled Command", description=str(error), bot=self.bot)
+            else:
+                return
 
-        elif isinstance(error, commands.NoPrivateMessage):return
-        #     try:
-        #         em = discord.Embed(title="No Private Message", description=str(error))
-        #         em.set_author(name=self.bot.user.display_name, icon_url=self.bot.user.avatar_url)
+        elif isinstance(error, commands.NoPrivateMessage):
+            if ctx.guild == 862180360610643999:
+                try:
+                    em = discord.Embed(title="No Private Message", description=str(error))
+                    em.set_author(name=self.bot.user.display_name, icon_url=self.bot.user.avatar_url)
 
-        #         msg = await ctx.author.send(embed=em)
-        #     except Exception:
-        #         pass
+                    msg = await ctx.author.send(embed=em)
+                except Exception:
+                    pass
+            else:
+                return
 
         elif isinstance(error, commands.BadArgument):
             print(error)
@@ -54,7 +63,9 @@ class CommandErrorHandler(commands.Cog):
                                   f'\n{self.lts(error.missing_roles or [error.missing_role])}')
 
         elif isinstance(error, commands.CommandInvokeError):
-            return #await ctx.em(title="Command Invoke Error", description=str(error), bot=self.bot)
+            if ctx.guild == 862180360610643999:
+                await ctx.em(title="Command Invoke Error", description=str(error), bot=self.bot)
+            else: return
 
         elif isinstance(error, commands.CommandOnCooldown):
             after = error.retry_after

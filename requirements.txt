@@ -1,6 +1,5 @@
 git+https://github.com/Rapptz/discord.py
 git+https://github.com/Gorialis/jishaku
-flask
 python-dateutil
 pillow
 mcstatus

@@ -119,7 +119,8 @@ class Jigsaw(commands.Cog, name="Jigsaw Rush"):
 
         return check
     
-    @commands.command('force_update')
+    @commands.hybrid_command('force_update', description="Forces an update of the leaderboards")
+    @app_commands.guilds(*GROUP_GUILDS)
     async def force_update(self, ctx):        
         msg = await ctx.send("Updating...")
 
@@ -476,6 +477,7 @@ class Jigsaw(commands.Cog, name="Jigsaw Rush"):
         await ctx.send(embed=embed)
 
     @commands.command(name='get_cbr', aliases=['generate', 'getcode', 'get_code'])
+    @app_commands.guilds(*GROUP_GUILDS)
     async def get_cbr(self, ctx, *board):
         blocks = ["dirt", "stone", "cobblestone", "log", "plank", "brick", "gold", "netherrack", "endstone"]
         board = list(board)
@@ -588,6 +590,7 @@ class Jigsaw(commands.Cog, name="Jigsaw Rush"):
             await ctx.send(f"`/start {seed}`", file=file)
 
     @commands.hybrid_command(name='server', aliases=['status'])
+    @app_commands.guilds(*GROUP_GUILDS)
     async def server(self, ctx):
         """Ping the server"""
         status = await self.mcserver.async_status()

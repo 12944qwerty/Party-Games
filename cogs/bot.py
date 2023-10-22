@@ -27,7 +27,7 @@ class Bot(commands.Cog):
 
         await ctx.send(embed=em)
 
-    @info.command(name='status', aliases=['bot'])
+    @info.command(name='status', aliases=['bot'], description='Shows the status of the bot')
     async def status(self, ctx):
         em = discord.Embed(title="__***Status***__ <a:online:512174327899226123>")
         em.add_field(name='Guild Count', value=len(self.bot.guilds))

@@ -1,4 +1,0 @@
-tasks:
-  - name: Dev
-    init: sh ./main.sh
-    command: python main.py

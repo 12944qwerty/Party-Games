@@ -1,5 +1,4 @@
 import os
-from keep_alive import keep_alive
 import discord
 from discord.ext import commands
 import datetime
@@ -40,20 +39,13 @@ class MyBot(commands.AutoShardedBot):
                          **kwargs)
         self.session = None
         self.start_time = datetime.datetime.utcnow()
-        self.owner_ids = [499400512559382538, 833689253996527657]
-
-        # tree = discord.app_commands.CommandTree(self)
+        self.owner_id = 499400512559382538
 
     async def on_message(self, message):
         await self.wait_until_ready()
         if message.author.bot:
             return
-        if message.guild:
-            print(
-                f"{message.channel.name}|#{message.channel.id} - @{message.author.name}: {message.clean_content}"
-            )
-        else:
-            print(f"{message.author.name}: {message.clean_content}")
+        
         await self.process_commands(message)
 
     async def on_connect(self):
@@ -72,15 +64,11 @@ class MyBot(commands.AutoShardedBot):
         print(
             f'Loaded all extensions after {human_timedelta(self.start_time, brief=True, suffix=False)}'
         )
-
-        await self.get_user(self.owner_ids[1]).send(f'Successfully logged in as {self.user}\nSharded to {len(self.guilds)} guilds\nLoaded all extensions after {human_timedelta(self.start_time, brief=True, suffix=False)}')
-        # print([m for m in self.guilds[0].members if not m.bot])
-        # channel = self.get_channel(862180361089450066)
-        # await channel.send("done")
-        # await channel.edit(slowmode_delay=0)
-        # await channel.send("changed slowmode too")
-
-        print("Sent messages")        
+        
+        for guild in GROUP_GUILDS:
+            await self.tree.sync(guild=guild)
+            
+        print("Synced Tree")
 
     async def on_ready(self):
         for guild in GROUP_GUILDS:
@@ -98,8 +86,6 @@ class MyBot(commands.AutoShardedBot):
 
 bot = MyBot()
 
-keep_alive()
-
-# if __name__ == '__main__':
-loop = asyncio.get_event_loop()
-loop.run_until_complete(bot.start(TOKEN))
+if __name__ == '__main__':
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(bot.start(TOKEN))
